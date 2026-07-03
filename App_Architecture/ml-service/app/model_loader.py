@@ -13,7 +13,7 @@ def ensure_model_downloaded() -> Path:
     if MODEL_PATH.exists():
         return MODEL_PATH
 
-     downloaded = hf_hub_download(
+    downloaded = hf_hub_download(
         repo_id=os.getenv("HF_REPO_ID", "ChristopherCardoza/world-cup-simulator"),
         filename=MODEL_FILENAME,
         revision=os.getenv("HF_REVISION", "main"),
