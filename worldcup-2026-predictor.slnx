@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/WorldCupPredictor.API/WorldCupPredictor.API.csproj" />
+  </Folder>
+</Solution>
