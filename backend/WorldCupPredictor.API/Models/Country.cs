@@ -10,7 +10,7 @@ namespace WorldCupPredictor.API.Models
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public string IsoCode { get; set; } = "";
-        public string flagPath { get; set; } = "";
+        public string FlagPath { get; set; } = "";
         public int? OppCode { get; set; }
     }
 }
