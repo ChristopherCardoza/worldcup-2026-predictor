@@ -2,3 +2,17 @@ App_Architecture/ml-service/model/world_cup_model.joblib
 App_Architecture/ml-service/.env
 .history
 __pycache__/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# .NET build output
+bin/
+obj/
+
+# SQLite local db
+*.db
+*.db-shm
+*.db-wal
