@@ -100,6 +100,119 @@ public static class DbSeeder
             ["L"] = ["England", "Croatia", "Ghana", "Panama"],
         };
 
+        // Official World Cup 2026 group fixtures (who vs who + matchday)
+        var fixturesByGroup = new Dictionary<string, (int Matchday, string TeamA, string TeamB)[]>
+        {
+            ["A"] =
+            [
+                (1, "Mexico", "South Africa"),
+                (1, "South Korea", "Czechia"),
+                (2, "Czechia", "South Africa"),
+                (2, "Mexico", "South Korea"),
+                (3, "Czechia", "Mexico"),
+                (3, "South Africa", "South Korea"),
+            ],
+            ["B"] =
+            [
+                (1, "Canada", "Bosnia and Herzegovina"),
+                (1, "Qatar", "Switzerland"),
+                (2, "Switzerland", "Bosnia and Herzegovina"),
+                (2, "Canada", "Qatar"),
+                (3, "Switzerland", "Canada"),
+                (3, "Bosnia and Herzegovina", "Qatar"),
+            ],
+            ["C"] =
+            [
+                (1, "Brazil", "Morocco"),
+                (1, "Haiti", "Scotland"),
+                (2, "Scotland", "Morocco"),
+                (2, "Brazil", "Haiti"),
+                (3, "Scotland", "Brazil"),
+                (3, "Morocco", "Haiti"),
+            ],
+            ["D"] =
+            [
+                (1, "United States", "Paraguay"),
+                (1, "Australia", "Turkey"),
+                (2, "Turkey", "Paraguay"),
+                (2, "United States", "Australia"),
+                (3, "Turkey", "United States"),
+                (3, "Paraguay", "Australia"),
+            ],
+            ["E"] =
+            [
+                (1, "Germany", "Curaçao"),
+                (1, "Ivory Coast", "Ecuador"),
+                (2, "Germany", "Ivory Coast"),
+                (2, "Ecuador", "Curaçao"),
+                (3, "Ecuador", "Germany"),
+                (3, "Curaçao", "Ivory Coast"),
+            ],
+            ["F"] =
+            [
+                (1, "Netherlands", "Japan"),
+                (1, "Sweden", "Tunisia"),
+                (2, "Netherlands", "Sweden"),
+                (2, "Tunisia", "Japan"),
+                (3, "Tunisia", "Netherlands"),
+                (3, "Japan", "Sweden"),
+            ],
+            ["G"] =
+            [
+                (1, "Belgium", "Egypt"),
+                (1, "Iran", "New Zealand"),
+                (2, "Belgium", "Iran"),
+                (2, "New Zealand", "Egypt"),
+                (3, "New Zealand", "Belgium"),
+                (3, "Egypt", "Iran"),
+            ],
+            ["H"] =
+            [
+                (1, "Spain", "Cape Verde"),
+                (1, "Saudi Arabia", "Uruguay"),
+                (2, "Spain", "Saudi Arabia"),
+                (2, "Uruguay", "Cape Verde"),
+                (3, "Uruguay", "Spain"),
+                (3, "Cape Verde", "Saudi Arabia"),
+            ],
+            ["I"] =
+            [
+                (1, "France", "Senegal"),
+                (1, "Iraq", "Norway"),
+                (2, "France", "Iraq"),
+                (2, "Norway", "Senegal"),
+                (3, "Norway", "France"),
+                (3, "Senegal", "Iraq"),
+            ],
+            ["J"] =
+            [
+                (1, "Argentina", "Algeria"),
+                (1, "Austria", "Jordan"),
+                (2, "Argentina", "Austria"),
+                (2, "Jordan", "Algeria"),
+                (3, "Jordan", "Argentina"),
+                (3, "Algeria", "Austria"),
+            ],
+            ["K"] =
+            [
+                (1, "Portugal", "DR Congo"),
+                (1, "Uzbekistan", "Colombia"),
+                (2, "Portugal", "Uzbekistan"),
+                (2, "Colombia", "DR Congo"),
+                (3, "Colombia", "Portugal"),
+                (3, "DR Congo", "Uzbekistan"),
+            ],
+            ["L"] =
+            [
+                (1, "England", "Croatia"),
+                (1, "Ghana", "Panama"),
+                (2, "England", "Ghana"),
+                (2, "Panama", "Croatia"),
+                (3, "Panama", "England"),
+                (3, "Croatia", "Ghana"),
+            ],
+        };
+
         foreach (var (groupName, teamNames) in groupDefs)
         {
             var group = new Group { TournamentId = tournament.Id, Name = groupName };
@@ -113,7 +226,23 @@ public static class DbSeeder
                     CountryId = countries[teamName].Id
                 });
             }
+
+            foreach (var (matchday, teamA, teamB) in fixturesByGroup[groupName])
+            {
+                db.Fixtures.Add(new Fixture
+                {
+                    TournamentId = tournament.Id,
+                    GroupId = group.Id,
+                    Matchday = matchday,
+                    Stage = "Group",
+                    TeamAId = countries[teamA].Id,
+                    TeamBId = countries[teamB].Id,
+                    Venue = "Neutral" // Might set Home for Hosts later 
+                });
+            }
         }
+
+
 
         db.SaveChanges();
     }
