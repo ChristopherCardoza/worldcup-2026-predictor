@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using WorldCupPredictor.API.Data;
 using WorldCupPredictor.API.Models;
+using WorldCupPredictor.API.Services;
+using WorldCupPredictor.API.Services.Ml;
 
 namespace WorldCupPredictor.API.Controllers
 {
@@ -10,8 +12,14 @@ namespace WorldCupPredictor.API.Controllers
     public class SimulationController : ControllerBase
     {
         private readonly AppDbContext _db;
+        private readonly MlPredictionClient _ml;
 
-        public SimulationController(AppDbContext db) => _db = db;
+
+        public SimulationController(AppDbContext db, MlPredictionClient ml)
+        {
+            _db = db;
+            _ml = ml;
+        }
 
         /// <summary>
         /// Starts a new tournament simulation
@@ -74,6 +82,101 @@ namespace WorldCupPredictor.API.Controllers
             }
 
             return Ok(run);
+
+        }
+
+
+        
+        [HttpPost("{id:int}/matchday/{matchday:int}")]
+        public async Task<IActionResult> SimulateMatchday (int id, int matchday, CancellationToken ct)
+        {
+            if (matchday is < 1 or > 3)
+            {
+                return BadRequest("Matchday must be 1,2, or 3.");
+            }
+
+            var run = await _db.SimulationRuns.FindAsync([id], ct);
+            if (run is null)
+            {
+                return NotFound($"SimulationRun {id} not found.");
+            }
+
+
+            var fixtures = await _db.Fixtures
+                .Include(f => f.TeamA)
+                .Include(f => f.TeamB)
+                .Where(f => f.TournamentId == run.TournamentId && f.Stage == "Group" && f.Matchday == matchday)
+                .ToListAsync(ct);
+
+            if (fixtures.Count == 0)
+            {
+                return NotFound($"No fixtures for matchday {matchday}.");
+            }
+
+            // Skip already simulated for the run
+            var alreadyDone = await _db.SimulatedMatches
+                .Where(m => m.SimulationRunId == id)
+                .Select(m => m.FixtureId)
+                .ToListAsync(ct);
+
+            var created = new List<object>();
+
+            foreach (var fixture in fixtures)
+            {
+                if (alreadyDone.Contains(fixture.Id))
+                {
+                    continue;
+                }
+
+                var pA = await _ml.GetTeamWinProbabilityAsync(
+                    fixture.TeamA.Name,
+                    fixture.TeamB.Name,
+                    fixture.Venue,
+                    ct);
+
+                var (outcome, goalsA, goalsB) = MatchSimulator.Simulate(pA);
+
+                var match = new SimulatedMatch
+                {
+                    SimulationRunId = id,
+                    FixtureId = fixture.Id,
+                    TeamAWinProbability = pA,
+                    GoalsA = goalsA,
+                    GoalsB = goalsB,
+                    Outcome = outcome
+                };
+
+                _db.SimulatedMatches.Add(match);
+
+                created.Add(new
+                {
+                    fixture.Id,
+                    TeamA = fixture.TeamA.Name,
+                    TeamB = fixture.TeamB.Name,
+                    TeamAWinProbability = pA,
+                    GoalsA = goalsA,
+                    GoalsB = goalsB,
+                    Outcome = outcome
+                });
+
+
+
+            }
+
+            if (matchday == 3)
+            {
+                run.Status = "GroupComplete";
+            }
+
+            await _db.SaveChangesAsync(ct);
+
+            return Ok(new
+            {
+                SimulationRunId = id,
+                Matchday = matchday,
+                MatchesSimulated = created.Count,
+                Matches = created
+            });
 
         }
 
