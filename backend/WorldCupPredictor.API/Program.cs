@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WorldCupPredictor.API.Data;
+using WorldCupPredictor.API.Services.Ml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+builder.Services.AddHttpClient<MlPredictionClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["MlService:BaseUri"] ?? "http://127.0.0.1:8000");
+});
 
 var app = builder.Build();
 
