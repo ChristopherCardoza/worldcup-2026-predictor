@@ -186,7 +186,39 @@ namespace WorldCupPredictor.API.Controllers
 
         }
 
+        [HttpGet("{id:int}/standings")]
+        public async Task<IActionResult> GetStandings(int id, CancellationToken ct)
+        {
+            var rows = await _db.GroupStandings
+                .AsNoTracking()
+                .Where(s => s.SimulationRunId == id)
+                .Include(s => s.Group)
+                .Include(s => s.Country)
+                .OrderBy(s => s.Group.Name)
+                .ThenBy(s => s.Rank)
+                .Select(s => new
+                {
+                    Group = s.Group.Name,
+                    Team = s.Country.Name,
+                    s.Rank,
+                    s.Played,
+                    s.Won,
+                    s.Drawn,
+                    s.Lost,
+                    s.GoalsFor,
+                    s.GoalsAgainst,
+                    GoalDifference = s.GoalsFor - s.GoalsAgainst,
+                    s.Points
+                })
+                .ToListAsync(ct);
 
+            if (rows.Count == 0)
+            {
+                return NotFound("No standings yet. Simulate matchdays 1–3 first.");
+            }
+
+            return Ok(rows);
+        }
 
     }
 }
