@@ -170,6 +170,12 @@ namespace WorldCupPredictor.API.Controllers
 
             await _db.SaveChangesAsync(ct);
 
+            // standings built after database is updated
+            if (matchday == 3)
+            {
+                await StandingsCalculator.RecalculateAsync(_db, id, ct);
+            }
+
             return Ok(new
             {
                 SimulationRunId = id,
