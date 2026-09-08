@@ -20,7 +20,7 @@ namespace WorldCupPredictor.API.Services
             var bestThirds = standings
                 .Where(s => s.Rank == 3)
                 .OrderByDescending(s => s.Points)
-                .ThenByDescending(S => S.GoalsFor = S.GoalsAgainst)
+                .ThenByDescending(S => S.GoalsFor - S.GoalsAgainst)
                 .ThenByDescending(S => S.GoalsFor)
                 .Take(8)
                 .ToDictionary(s => s.Group.Name, s => s.CountryId);
