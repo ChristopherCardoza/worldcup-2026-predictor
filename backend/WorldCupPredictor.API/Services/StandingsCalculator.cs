@@ -76,7 +76,7 @@ namespace WorldCupPredictor.API.Services
             else if (gf == ga)
             {
                 row.Drawn++;
-                row.Drawn += 1;
+                row.Points += 1;
             }
             else
             {
