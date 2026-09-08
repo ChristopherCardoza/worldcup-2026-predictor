@@ -45,5 +45,15 @@
 
             return winnerIsA ? (winnerGoals, loserGoals) : (loserGoals, winnerGoals);
         }
+
+        public static (string Outcome, int GoalsA, int GoalsB) SimulateKnockout(
+            double teamAWinProbability)
+        {
+            var r = Random.Shared.NextDouble();
+            bool aWins = r < teamAWinProbability;
+            var (ga, gb) = RandomScore(winnerIsA: aWins, isDraw: false);
+            return (aWins ? "TeamAWin" : "TeamBWin", ga, gb);
+        }
+
     }
 }
