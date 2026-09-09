@@ -234,5 +234,61 @@ namespace WorldCupPredictor.API.Controllers
             }
         }
 
+        [HttpGet("{id:int}/export")]
+        public async Task<IActionResult> Export(int id, CancellationToken ct)
+        {
+            var run = await _db.SimulationRuns
+                .Include(r => r.ChampionCountry)
+                .FirstOrDefaultAsync(r => r.Id == id, ct);
+
+            if (run is null)
+            {
+                return NotFound();
+            }
+                
+           var standings = await _db.GroupStandings
+                .Include(s => s.Group)
+                .Include(s => s.Country)
+                .Where(s => s.SimulationRunId == id)
+                .OrderBy(s => s.Group.Name)
+                .ThenBy(s => s.Rank)
+                .ToListAsync(ct);
+
+            var ko = await _db.SimulatedMatches
+                .Include(m => m.Fixture).ThenInclude(f => f.TeamA)
+                .Include(m => m.Fixture).ThenInclude(f => f.TeamB)
+                .Where(m => m.SimulationRunId == id && m.Fixture.Stage != "Group")
+                .OrderBy(m => m.Fixture.BracketSlot)
+                .ToListAsync(ct);
+
+            var html = new System.Text.StringBuilder();
+            html.Append("<html><head><title>WC 2026 Sim</title></head><body>");
+            html.Append($"<h1>World Cup 2026 Simulation {id}</h1>");
+            html.Append($"<p>Champion: {run.ChampionCountry?.Name ?? "(not finished)"}</p>");
+
+            string? currentGroup = null;
+            foreach (var s in standings)
+            {
+                if (s.Group.Name != currentGroup)
+                {
+                    if (currentGroup is not null) html.Append("</table>");
+                    currentGroup = s.Group.Name;
+                    html.Append($"<h2>Group {s.Group.Name}</h2>");
+                    html.Append("<table border='1' cellpadding='4'><tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>Pts</th></tr>");
+                }
+                html.Append($"<tr><td>{s.Rank}</td><td>{s.Country.Name}</td><td>{s.Played}</td><td>{s.Won}</td><td>{s.Drawn}</td><td>{s.Lost}</td><td>{s.GoalsFor}</td><td>{s.GoalsAgainst}</td><td>{s.Points}</td></tr>");
+            }
+            if (currentGroup is not null) html.Append("</table>");
+
+            html.Append("<h2>Knockouts</h2><table border='1' cellpadding='4'><tr><th>Stage</th><th>Match</th><th>Score</th></tr>");
+            foreach (var m in ko)
+            {
+                html.Append($"<tr><td>{m.Fixture.Stage}</td><td>{m.Fixture.TeamA.Name} vs {m.Fixture.TeamB.Name}</td><td>{m.GoalsA}-{m.GoalsB}</td></tr>");
+            }
+            html.Append("</table></body></html>");
+
+            return Content(html.ToString(), "text/html");
+        }
+
     }
 }
