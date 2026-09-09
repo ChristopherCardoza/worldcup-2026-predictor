@@ -220,5 +220,19 @@ namespace WorldCupPredictor.API.Controllers
             return Ok(rows);
         }
 
+        [HttpPost("{id:int}/knockouts")]
+        public async Task<IActionResult> SimulateKnockouts(int id, CancellationToken ct)
+        {
+            try
+            {
+                var result = await KnockoutSimulator.RunAsync(_db, _ml, id, ct);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

@@ -50,7 +50,7 @@ namespace WorldCupPredictor.API.Services
         // Winner group letter to which 3rd place group to play
         private static Dictionary<string, string> AssignThirds(HashSet<string> advancingThirdGroups)
         {
-            var allowed = new Dictionary<string, string[]>
+            Dictionary<string, string[]> allowed = new Dictionary<string, string[]>
             {
                 ["A"] = ["C", "E", "F", "H", "I"],
                 ["B"] = ["E", "F", "G", "I", "J"],
@@ -62,17 +62,47 @@ namespace WorldCupPredictor.API.Services
                 ["L"] = ["E", "H", "I", "J", "K"],
             };
 
-            var unused = new HashSet<string>(advancingThirdGroups);
-            var result = new Dictionary<string, string>();
+            string[] winners = ["A", "B", "D", "E", "G", "I", "K", "L"];
+            Dictionary<string, string>? solution = null;
 
-            foreach (var winner in allowed.Keys)
+            void Search(int index, HashSet<string> unused, Dictionary<string, string> current)
             {
-                var pick = allowed[winner].First(g => unused.Contains(g));
-                result[winner] = pick;
-                unused.Remove(pick);
+                if (solution is not null)
+                {
+                    return;
+                }
+
+                if (index == winners.Length)
+                {
+                    solution = new Dictionary<string, string>(current);
+                    return;
+                }
+
+                string winner = winners[index];
+                foreach (string group in allowed[winner])
+                {
+                    if (!unused.Contains(group))
+                    {
+                        continue;
+                    }
+
+                    unused.Remove(group);
+                    current[winner] = group;
+                    Search(index + 1, unused, current);
+                    current.Remove(winner);
+                    unused.Add(group);
+                }
             }
 
-            return result;
+            Search(0, new HashSet<string>(advancingThirdGroups), new Dictionary<string, string>());
+
+            if (solution is null)
+            {
+                throw new InvalidOperationException(
+                    "Could not assign third-place teams. Check that standings have ranks 1-4 for every group.");
+            }
+
+            return solution;
         }
 
     }
