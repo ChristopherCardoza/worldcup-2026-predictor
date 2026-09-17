@@ -1,0 +1,21 @@
+@using WorldCupPredictor.Web.Models
+
+<div class="team-row @(IsQualifying ? "team-row--qualifying" : "team-row--eliminated")">
+    <div class="team-row__info">
+        <div class="team-row__flag">
+            <img src="@Team.FlagPath" alt="" width="48" height="32" />
+        </div>
+        <span class="team-row__name">@Team.Name</span>
+    </div>
+    <div class="team-row__score-wrap">
+        <div class="team-row__score">@Team.Points</div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TeamStandingViewModel Team { get; set; } = default!;
+
+    [Parameter]
+    public bool IsQualifying { get; set; }
+}

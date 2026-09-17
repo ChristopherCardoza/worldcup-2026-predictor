@@ -1,5 +1,32 @@
+:root {
+    --wc-bg: #151519;
+    --wc-fantasy-black: #121212;
+    --wc-text: #f7f7f8;
+    --wc-stroke: #f7f7f8;
+    --wc-stroke-weight: 2px;
+    --wc-score-bg: #5a5b6f;
+    --wc-score-text: #f7f7f8;
+    --wc-font: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --wc-group-a: #01E676;
+    --wc-group-b: #FF1644;
+    --wc-group-c: #FF9103;
+    --wc-group-d: #304FFE;
+    --wc-group-e: #6200EA;
+    --wc-group-f: #C7FF02;
+    --wc-group-g: #F06292;
+    --wc-group-h: #64FFDA;
+    --wc-group-i: #AB47BC;
+    --wc-group-j: #007888;
+    --wc-group-k: #FF3D00;
+    --wc-group-l: #2196F3;
+    --wc-card-radius: 52px;
+    --wc-row-radius: 28px;
+    --wc-flag-radius-tl: 16px;
+    --wc-flag-radius-br: 16px;
+}
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--wc-font);
 }
 
 a, .btn-link {

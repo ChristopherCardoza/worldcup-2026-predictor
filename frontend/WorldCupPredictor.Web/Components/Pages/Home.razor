@@ -1,7 +1,91 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>World Cup 2026 Groups</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="groups-home">
+    <header class="groups-home__header">
+        <h1 class="groups-home__title">FIFA World Cup 2026</h1>
+        <p class="groups-home__subtitle">Group standings</p>
+    </header>
 
-Welcome to your new app.
+    <div class="groups-board">
+        @foreach (var group in Groups)
+        {
+            <GroupCard Letter="@group.Letter"
+                       AccentCssVariable="@group.AccentCssVariable"
+                       Teams="@group.Teams" />
+        }
+    </div>
+</div>
+
+@code {
+    private static readonly IReadOnlyList<GroupStandingViewModel> Groups =
+    [
+        Group("A", "--wc-group-a",
+            Team("Mexico", "/flags/mex.svg", 9),
+            Team("South Africa", "/flags/rsa.svg", 4),
+            Team("South Korea", "/flags/kor.svg", 3),
+            Team("Czechia", "/flags/cze.svg", 1)),
+        Group("B", "--wc-group-b",
+            Team("Switzerland", "/flags/sui.svg", 7),
+            Team("Canada", "/flags/can.svg", 5),
+            Team("Bosnia and Herzegovina", "/flags/bih.svg", 3),
+            Team("Qatar", "/flags/qat.svg", 1)),
+        Group("C", "--wc-group-c",
+            Team("Brazil", "/flags/bra.svg", 9),
+            Team("Morocco", "/flags/mar.svg", 6),
+            Team("Scotland", "/flags/sco.svg", 3),
+            Team("Haiti", "/flags/hai.svg", 0)),
+        Group("D", "--wc-group-d",
+            Team("United States", "/flags/usa.svg", 7),
+            Team("Australia", "/flags/aus.svg", 4),
+            Team("Paraguay", "/flags/par.svg", 4),
+            Team("Turkey", "/flags/tur.svg", 1)),
+        Group("E", "--wc-group-e",
+            Team("Germany", "/flags/ger.svg", 9),
+            Team("Ivory Coast", "/flags/civ.svg", 4),
+            Team("Ecuador", "/flags/ecu.svg", 3),
+            Team("Curaçao", "/flags/cuw.svg", 1)),
+        Group("F", "--wc-group-f",
+            Team("Netherlands", "/flags/ned.svg", 7),
+            Team("Japan", "/flags/jpn.svg", 5),
+            Team("Sweden", "/flags/swe.svg", 3),
+            Team("Tunisia", "/flags/tun.svg", 1)),
+        Group("G", "--wc-group-g",
+            Team("Belgium", "/flags/bel.svg", 7),
+            Team("Egypt", "/flags/egy.svg", 5),
+            Team("Iran", "/flags/irn.svg", 3),
+            Team("New Zealand", "/flags/nzl.svg", 1)),
+        Group("H", "--wc-group-h",
+            Team("Spain", "/flags/esp.svg", 9),
+            Team("Cape Verde", "/flags/cpv.svg", 4),
+            Team("Uruguay", "/flags/uru.svg", 3),
+            Team("Saudi Arabia", "/flags/ksa.svg", 1)),
+        Group("I", "--wc-group-i",
+            Team("France", "/flags/fra.svg", 7),
+            Team("Norway", "/flags/nor.svg", 5),
+            Team("Senegal", "/flags/sen.svg", 3),
+            Team("Iraq", "/flags/irq.svg", 1)),
+        Group("J", "--wc-group-j",
+            Team("Argentina", "/flags/arg.svg", 9),
+            Team("Austria", "/flags/aut.svg", 4),
+            Team("Algeria", "/flags/alg.svg", 3),
+            Team("Jordan", "/flags/jor.svg", 1)),
+        Group("K", "--wc-group-k",
+            Team("Colombia", "/flags/col.svg", 7),
+            Team("Portugal", "/flags/por.svg", 5),
+            Team("DR Congo", "/flags/cod.svg", 3),
+            Team("Uzbekistan", "/flags/uzb.svg", 1)),
+        Group("L", "--wc-group-l",
+            Team("England", "/flags/eng.svg", 7),
+            Team("Croatia", "/flags/cro.svg", 5),
+            Team("Ghana", "/flags/gha.svg", 3),
+            Team("Panama", "/flags/pan.svg", 1)),
+    ];
+
+    private static GroupStandingViewModel Group(string letter, string accent, params TeamStandingViewModel[] teams) =>
+        new() { Letter = letter, AccentCssVariable = accent, Teams = teams };
+
+    private static TeamStandingViewModel Team(string name, string flagPath, int points) =>
+        new() { Name = name, FlagPath = flagPath, Points = points };
+}

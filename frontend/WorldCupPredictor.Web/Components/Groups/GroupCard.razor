@@ -1,0 +1,27 @@
+@using WorldCupPredictor.Web.Models
+
+<section class="group-card" style="--group-accent: var(@AccentCssVariable);">
+    <div class="group-card__inner">
+        <header class="group-card__header">
+            <h2 class="group-card__title">Group @Letter</h2>
+        </header>
+
+        <div class="group-card__teams">
+            @for (var i = 0; i < Teams.Count; i++)
+            {
+                <TeamStandingRow Team="Teams[i]" IsQualifying="@(i < 2)" />
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Letter { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public string AccentCssVariable { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<TeamStandingViewModel> Teams { get; set; } = [];
+}
