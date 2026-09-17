@@ -1,7 +1,7 @@
 .group-card {
     width: 100%;
     height: 100%;
-    background: var(--group-accent);
+    background: #ffffff;
     border-radius: 16px;
     color: var(--wc-fantasy-black);
     box-sizing: border-box;
@@ -17,9 +17,12 @@
 }
 
 .group-card__header {
+    background: var(--wc-fantasy-black);
+    border-radius: 10px;
     display: flex;
     justify-content: center;
-    padding: 0.1rem 0.35rem 0;
+    /* padding: 0.1rem 0.35rem 0; */
+    padding: 0.35rem 0.5rem;
 }
 
 .group-card__title {
@@ -30,7 +33,7 @@
     line-height: 1.2;
     text-transform: uppercase;
     text-align: center;
-    color: var(--wc-fantasy-black);
+    color: var(--wc-text);
 }
 
 .group-card__teams {
