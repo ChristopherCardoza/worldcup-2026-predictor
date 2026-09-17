@@ -3,7 +3,7 @@
     align-items: stretch;
     width: 100%;
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 .team-row--eliminated {
@@ -15,18 +15,18 @@
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.35rem 0.4rem 0.5rem;
+    gap: 0.35rem;
+    padding: 0.28rem 0.25rem 0.28rem 0.35rem;
     background: var(--wc-bg);
 }
 
 .team-row__flag {
     flex-shrink: 0;
-    width: 48px;
-    height: 32px;
+    width: 36px;
+    height: 24px;
     overflow: hidden;
     border: 1px solid var(--wc-stroke);
-    border-radius: 8px 0 8px 0;
+    border-radius: 6px 0 6px 0;
     background: var(--wc-fantasy-black);
 }
 
@@ -40,7 +40,7 @@
 .team-row__name {
     font-family: var(--wc-font);
     font-weight: 900;
-    font-size: clamp(0.65rem, 0.95vw, 0.85rem);
+    font-size: clamp(0.55rem, 0.85vw, 0.7rem);
     line-height: 1.1;
     color: var(--wc-text);
     text-transform: uppercase;
@@ -53,7 +53,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 0.5rem 0 0.25rem;
+    padding: 0 0.35rem 0 0.2rem;
     background: var(--wc-bg);
 }
 
@@ -61,35 +61,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 32px;
-    border-radius: 8px;
+    width: 32px;
+    height: 24px;
+    border-radius: 6px;
     background: var(--wc-score-bg);
     color: var(--wc-score-text);
     font-family: var(--wc-font);
     font-weight: 900;
-    font-size: clamp(0.7rem, 1vw, 0.9rem);
+    font-size: clamp(0.55rem, 0.85vw, 0.7rem);
     line-height: 1;
     text-transform: uppercase;
-}
-
-@media (max-width: 640px) {
-    .team-row__info {
-        gap: 0.5rem;
-        padding: 0.5rem;
-    }
-
-    .team-row__flag {
-        width: 48px;
-        height: 32px;
-    }
-
-    .team-row__score-wrap {
-        padding: 0 0.5rem 0 0.25rem;
-    }
-
-    .team-row__score {
-        width: 40px;
-        height: 32px;
-    }
 }
