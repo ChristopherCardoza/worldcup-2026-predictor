@@ -1,4 +1,5 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
 <PageTitle>World Cup 2026 Groups</PageTitle>
 
@@ -12,6 +13,15 @@
     </header>
 
     <div class="groups-board">
+        <div class="sim-matchday-row">
+            <button type="button"
+                    class="sim-matchday"
+                    disabled="@(_nextMatchday > 3)"
+                    @onclick="OnSimMatchday">
+                @SimMatchdayLabel
+            </button>
+        </div>
+
         @foreach (var group in Groups)
         {
             <GroupCard Letter="@group.Letter"
@@ -22,6 +32,22 @@
 </div>
 
 @code {
+    private int _nextMatchday = 1;
+
+    private string SimMatchdayLabel =>
+        _nextMatchday > 3 ? "Group stage complete" : $"Sim Matchday {_nextMatchday}";
+
+    private void OnSimMatchday()
+    {
+        if (_nextMatchday is < 1 or > 3)
+        {
+            return;
+        }
+
+        // Stub: advance UI only; API wiring comes later.
+        _nextMatchday++;
+    }
+
     private static readonly IReadOnlyList<GroupStandingViewModel> Groups =
     [
         Group("A", "--wc-group-a",

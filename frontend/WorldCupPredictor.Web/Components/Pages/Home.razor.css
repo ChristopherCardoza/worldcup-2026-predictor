@@ -44,10 +44,54 @@
     min-width: 0;
 }
 
+.sim-matchday-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.sim-matchday {
+    grid-column: 4;
+    justify-self: stretch;
+    align-self: end;
+    margin: 0;
+    padding: 0.55rem 0.75rem;
+    border: none;
+    border-radius: 12px;
+    background: var(--wc-fantasy-black);
+    color: var(--wc-text);
+    font-family: var(--wc-font);
+    font-weight: 900;
+    font-size: clamp(0.7rem, 1vw, 0.85rem);
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.sim-matchday:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--wc-fantasy-black) 85%, var(--wc-text));
+}
+
+.sim-matchday:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 @media (max-width: 1100px) {
     .groups-board {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         max-width: 640px;
+    }
+
+    .sim-matchday-row {
+        grid-template-columns: 1fr;
+    }
+
+    .sim-matchday {
+        grid-column: 1;
     }
 }
 
