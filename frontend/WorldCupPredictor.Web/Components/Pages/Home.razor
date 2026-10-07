@@ -1,5 +1,6 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@inject SimulationApiClient SimulationApi
 
 <PageTitle>World Cup 2026 Groups</PageTitle>
 
@@ -14,15 +15,21 @@
 
     <div class="groups-board">
         <div class="sim-matchday-row">
-            <button type="button"
-                    class="sim-matchday"
-                    disabled="@(_nextMatchday > 3)"
-                    @onclick="OnSimMatchday">
-                @SimMatchdayLabel
-            </button>
+            <div class="sim-matchday-slot">
+                <button type="button"
+                        class="sim-matchday"
+                        disabled="@(_busy || _nextMatchday > 3)"
+                        @onclick="OnSimMatchday">
+                    @SimMatchdayLabel
+                </button>
+                @if (_error is not null)
+                {
+                    <p class="sim-matchday-error">@_error</p>
+                }
+            </div>
         </div>
 
-        @foreach (var group in Groups)
+        @foreach (var group in _groups)
         {
             <GroupCard Letter="@group.Letter"
                        AccentCssVariable="@group.AccentCssVariable"
@@ -32,84 +39,136 @@
 </div>
 
 @code {
+    private int? _runId;
     private int _nextMatchday = 1;
+    private bool _busy;
+    private string? _error;
+    private List<GroupStandingViewModel> _groups = [.. InitialGroups];
 
     private string SimMatchdayLabel =>
+        _busy ? "Simulating..." :
         _nextMatchday > 3 ? "Group stage complete" : $"Sim Matchday {_nextMatchday}";
 
-    private void OnSimMatchday()
+    private async Task OnSimMatchday()
     {
-        if (_nextMatchday is < 1 or > 3)
+        if (_busy || _nextMatchday is < 1 or > 3)
         {
             return;
         }
 
-        // Stub: advance UI only; API wiring comes later.
-        _nextMatchday++;
+        _busy = true;
+        _error = null;
+
+        try
+        {
+            _runId ??= await SimulationApi.StartAsync();
+            await SimulationApi.SimulateMatchdayAsync(_runId.Value, _nextMatchday);
+            var rows = await SimulationApi.GetStandingsAsync(_runId.Value);
+            _groups = MapStandings(rows);
+            _nextMatchday++;
+        }
+        catch (Exception)
+        {
+            _error = "Simulation failed. Check that the API and prediction service are running.";
+        }
+        finally
+        {
+            _busy = false;
+        }
     }
 
-    private static readonly IReadOnlyList<GroupStandingViewModel> Groups =
+    private static List<GroupStandingViewModel> MapStandings(IReadOnlyList<StandingRow> rows) =>
+        rows
+            .GroupBy(row => row.Group)
+            .OrderBy(group => group.Key)
+            .Select(group => Group(
+                group.Key,
+                AccentFor(group.Key),
+                group.OrderBy(row => row.Rank)
+                    .Select(row => Team(row.Team, row.FlagPath, row.Points))
+                    .ToArray()))
+            .ToList();
+
+    private static string AccentFor(string letter) =>
+        letter.ToUpperInvariant() switch
+        {
+            "A" => "--wc-group-a",
+            "B" => "--wc-group-b",
+            "C" => "--wc-group-c",
+            "D" => "--wc-group-d",
+            "E" => "--wc-group-e",
+            "F" => "--wc-group-f",
+            "G" => "--wc-group-g",
+            "H" => "--wc-group-h",
+            "I" => "--wc-group-i",
+            "J" => "--wc-group-j",
+            "K" => "--wc-group-k",
+            "L" => "--wc-group-l",
+            _ => "--wc-group-a"
+        };
+
+    private static readonly IReadOnlyList<GroupStandingViewModel> InitialGroups =
     [
         Group("A", "--wc-group-a",
-            Team("Mexico", "/flags/mex.svg", 9),
-            Team("South Africa", "/flags/rsa.svg", 4),
-            Team("South Korea", "/flags/kor.svg", 3),
-            Team("Czechia", "/flags/cze.svg", 1)),
+            Team("Mexico", "/flags/mex.svg", 0),
+            Team("South Africa", "/flags/rsa.svg", 0),
+            Team("South Korea", "/flags/kor.svg", 0),
+            Team("Czechia", "/flags/cze.svg", 0)),
         Group("B", "--wc-group-b",
-            Team("Switzerland", "/flags/sui.svg", 7),
-            Team("Canada", "/flags/can.svg", 5),
-            Team("Bosnia and Herzegovina", "/flags/bih.svg", 3),
-            Team("Qatar", "/flags/qat.svg", 1)),
+            Team("Switzerland", "/flags/sui.svg", 0),
+            Team("Canada", "/flags/can.svg", 0),
+            Team("Bosnia and Herzegovina", "/flags/bih.svg", 0),
+            Team("Qatar", "/flags/qat.svg", 0)),
         Group("C", "--wc-group-c",
-            Team("Brazil", "/flags/bra.svg", 9),
-            Team("Morocco", "/flags/mar.svg", 6),
-            Team("Scotland", "/flags/sco.svg", 3),
+            Team("Brazil", "/flags/bra.svg", 0),
+            Team("Morocco", "/flags/mar.svg", 0),
+            Team("Scotland", "/flags/sco.svg", 0),
             Team("Haiti", "/flags/hai.svg", 0)),
         Group("D", "--wc-group-d",
-            Team("United States", "/flags/usa.svg", 7),
-            Team("Australia", "/flags/aus.svg", 4),
-            Team("Paraguay", "/flags/par.svg", 4),
-            Team("Turkey", "/flags/tur.svg", 1)),
+            Team("United States", "/flags/usa.svg", 0),
+            Team("Australia", "/flags/aus.svg", 0),
+            Team("Paraguay", "/flags/par.svg", 0),
+            Team("Turkey", "/flags/tur.svg", 0)),
         Group("E", "--wc-group-e",
-            Team("Germany", "/flags/ger.svg", 9),
-            Team("Ivory Coast", "/flags/civ.svg", 4),
-            Team("Ecuador", "/flags/ecu.svg", 3),
-            Team("Curaçao", "/flags/cuw.svg", 1)),
+            Team("Germany", "/flags/ger.svg", 0),
+            Team("Ivory Coast", "/flags/civ.svg", 0),
+            Team("Ecuador", "/flags/ecu.svg", 0),
+            Team("Curaçao", "/flags/cuw.svg", 0)),
         Group("F", "--wc-group-f",
-            Team("Netherlands", "/flags/ned.svg", 7),
-            Team("Japan", "/flags/jpn.svg", 5),
-            Team("Sweden", "/flags/swe.svg", 3),
-            Team("Tunisia", "/flags/tun.svg", 1)),
+            Team("Netherlands", "/flags/ned.svg", 0),
+            Team("Japan", "/flags/jpn.svg", 0),
+            Team("Sweden", "/flags/swe.svg", 0),
+            Team("Tunisia", "/flags/tun.svg", 0)),
         Group("G", "--wc-group-g",
-            Team("Belgium", "/flags/bel.svg", 7),
-            Team("Egypt", "/flags/egy.svg", 5),
-            Team("Iran", "/flags/irn.svg", 3),
-            Team("New Zealand", "/flags/nzl.svg", 1)),
+            Team("Belgium", "/flags/bel.svg", 0),
+            Team("Egypt", "/flags/egy.svg", 0),
+            Team("Iran", "/flags/irn.svg", 0),
+            Team("New Zealand", "/flags/nzl.svg", 0)),
         Group("H", "--wc-group-h",
-            Team("Spain", "/flags/esp.svg", 9),
-            Team("Cape Verde", "/flags/cpv.svg", 4),
-            Team("Uruguay", "/flags/uru.svg", 3),
-            Team("Saudi Arabia", "/flags/ksa.svg", 1)),
+            Team("Spain", "/flags/esp.svg", 0),
+            Team("Cape Verde", "/flags/cpv.svg", 0),
+            Team("Uruguay", "/flags/uru.svg", 0),
+            Team("Saudi Arabia", "/flags/ksa.svg", 0)),
         Group("I", "--wc-group-i",
-            Team("France", "/flags/fra.svg", 7),
-            Team("Norway", "/flags/nor.svg", 5),
-            Team("Senegal", "/flags/sen.svg", 3),
-            Team("Iraq", "/flags/irq.svg", 1)),
+            Team("France", "/flags/fra.svg", 0),
+            Team("Norway", "/flags/nor.svg", 0),
+            Team("Senegal", "/flags/sen.svg", 0),
+            Team("Iraq", "/flags/irq.svg", 0)),
         Group("J", "--wc-group-j",
-            Team("Argentina", "/flags/arg.svg", 9),
-            Team("Austria", "/flags/aut.svg", 4),
-            Team("Algeria", "/flags/alg.svg", 3),
-            Team("Jordan", "/flags/jor.svg", 1)),
+            Team("Argentina", "/flags/arg.svg", 0),
+            Team("Austria", "/flags/aut.svg", 0),
+            Team("Algeria", "/flags/alg.svg", 0),
+            Team("Jordan", "/flags/jor.svg", 0)),
         Group("K", "--wc-group-k",
-            Team("Colombia", "/flags/col.svg", 7),
-            Team("Portugal", "/flags/por.svg", 5),
-            Team("DR Congo", "/flags/cod.svg", 3),
-            Team("Uzbekistan", "/flags/uzb.svg", 1)),
+            Team("Colombia", "/flags/col.svg", 0),
+            Team("Portugal", "/flags/por.svg", 0),
+            Team("DR Congo", "/flags/cod.svg", 0),
+            Team("Uzbekistan", "/flags/uzb.svg", 0)),
         Group("L", "--wc-group-l",
-            Team("England", "/flags/eng.svg", 7),
-            Team("Croatia", "/flags/cro.svg", 5),
-            Team("Ghana", "/flags/gha.svg", 3),
-            Team("Panama", "/flags/pan.svg", 1)),
+            Team("England", "/flags/eng.svg", 0),
+            Team("Croatia", "/flags/cro.svg", 0),
+            Team("Ghana", "/flags/gha.svg", 0),
+            Team("Panama", "/flags/pan.svg", 0)),
     ];
 
     private static GroupStandingViewModel Group(string letter, string accent, params TeamStandingViewModel[] teams) =>

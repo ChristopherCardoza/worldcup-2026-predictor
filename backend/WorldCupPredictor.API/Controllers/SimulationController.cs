@@ -170,11 +170,7 @@ namespace WorldCupPredictor.API.Controllers
 
             await _db.SaveChangesAsync(ct);
 
-            // standings built after database is updated
-            if (matchday == 3)
-            {
-                await StandingsCalculator.RecalculateAsync(_db, id, ct);
-            }
+            await StandingsCalculator.RecalculateAsync(_db, id, ct);
 
             return Ok(new
             {
@@ -200,6 +196,7 @@ namespace WorldCupPredictor.API.Controllers
                 {
                     Group = s.Group.Name,
                     Team = s.Country.Name,
+                    FlagPath = s.Country.FlagPath,
                     s.Rank,
                     s.Played,
                     s.Won,

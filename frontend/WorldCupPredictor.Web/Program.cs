@@ -1,10 +1,17 @@
 using WorldCupPredictor.Web.Components;
+using WorldCupPredictor.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddHttpClient<SimulationApiClient>(client =>
+{
+    var baseUrl = builder.Configuration["Api:BaseUrl"] ?? "http://localhost:5206";
+    client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+});
 
 var app = builder.Build();
 
